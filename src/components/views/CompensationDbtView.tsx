@@ -11,7 +11,9 @@ import {
   FileSpreadsheet, 
   ArrowDownToLine,
   RefreshCw,
-  Building2
+  Building2,
+  Calculator,
+  Download
 } from 'lucide-react';
 
 interface CompensationDbtViewProps {
@@ -37,7 +39,7 @@ export const CompensationDbtView: React.FC<CompensationDbtViewProps> = ({
 
   const filteredBeneficiaries = beneficiaries.filter(b => {
     if (filterStatus !== 'ALL' && b.paymentStatus !== filterStatus) return false;
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
         b.name.toLowerCase().includes(q) ||
@@ -59,18 +61,22 @@ export const CompensationDbtView: React.FC<CompensationDbtViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="emerald">PFMS-DBT Direct Gateway</Badge>
-            <span className="text-xs text-slate-400">Public Financial Management System Direct Benefit Transfer</span>
+            <span className="text-[11px] font-bold text-[#1B365D] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              PFMS-DBT Direct Financial Integration
+            </span>
+            <span className="text-xs text-slate-500 font-medium">
+              RFCTLARR 2013 First Schedule Statutory Valuation & Transfer
+            </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-100 mt-1">
+          <h1 className="text-xl font-bold text-slate-900 mt-1">
             Compensation Ledger & Aadhaar-Linked DBT Engine
-          </h2>
-          <p className="text-xs text-slate-400 max-w-2xl mt-0.5">
+          </h1>
+          <p className="text-xs text-slate-600 max-w-2xl mt-0.5">
             Zero-leakage electronic disbursement directly credited to landholder Aadhaar-seeded accounts with 100% Solatium and 12% additional market interest under LARR 2013 First Schedule.
           </p>
         </div>
@@ -78,51 +84,51 @@ export const CompensationDbtView: React.FC<CompensationDbtViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenCalculator}
-            className="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium transition-all shadow-md flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-[#1B365D] hover:bg-[#122642] text-white rounded text-xs font-semibold transition-colors shadow-xs flex items-center gap-1.5"
           >
-            <IndianRupee className="w-4 h-4" />
-            <span>LARR Valuation Calculator</span>
+            <Calculator className="w-4 h-4" />
+            <span>Open Statutory LARR Calculator</span>
           </button>
         </div>
       </div>
 
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Statutory Awards</span>
-          <div className="mt-2 text-2xl font-black font-mono text-slate-100">
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Total Statutory Awards</span>
+          <div className="mt-2 text-2xl font-bold text-slate-900">
             ₹{(totalAwarded / 10000000).toFixed(2)} Cr
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Across all sanctioned Section 23/30 orders</p>
+          <p className="text-[11px] text-slate-500 mt-1">Across all sanctioned Section 23/30 CALA orders</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">DBT Real-Time Disbursed</span>
-          <div className="mt-2 text-2xl font-black font-mono text-emerald-400">
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">DBT Disbursed (PFMS Credited)</span>
+          <div className="mt-2 text-2xl font-bold text-emerald-800">
             ₹{(totalDisbursed / 10000000).toFixed(2)} Cr
           </div>
-          <p className="text-[11px] text-emerald-400 mt-1">
-            {Math.round((totalDisbursed / totalAwarded) * 100)}% Credited via PFMS Direct Settlement
+          <p className="text-[11px] text-emerald-700 font-medium mt-1">
+            {Math.round((totalDisbursed / totalAwarded) * 100)}% Settled via NPCI APBS Transfer
           </p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Khatedar Beneficiaries</span>
-          <div className="mt-2 text-2xl font-black font-mono text-sky-400">
-            {successCount} <span className="text-xs font-normal text-slate-400">/ {beneficiaries.length} settled</span>
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Khatedar Beneficiaries</span>
+          <div className="mt-2 text-2xl font-bold text-[#1B365D]">
+            {successCount} <span className="text-sm font-normal text-slate-500">/ {beneficiaries.length} Settled</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">100% Aadhaar NPCI mapper verified</p>
+          <p className="text-[11px] text-slate-500 mt-1">100% Aadhaar-seeded accounts verified</p>
         </div>
       </div>
 
       {/* Beneficiaries Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200 rounded shadow-xs overflow-hidden">
+        <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div>
-            <h3 className="text-sm font-bold text-slate-100">
+            <h2 className="text-sm font-bold text-slate-900">
               Direct Benefit Transfer Beneficiary Ledger
-            </h3>
-            <p className="text-xs text-slate-400">Real-time payment triggers with ISO 20022 PFMS webhooks</p>
+            </h2>
+            <p className="text-xs text-slate-500">Real-time payment triggers with ISO 20022 PFMS webhooks</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -132,17 +138,17 @@ export const CompensationDbtView: React.FC<CompensationDbtViewProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search Beneficiary or Bank..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                placeholder="Search Khatedar or Bank..."
+                className="w-full bg-white border border-slate-300 rounded pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
               />
             </div>
 
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
-              className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-sky-500"
+              className="bg-white text-xs text-slate-900 font-semibold border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none"
             >
-              <option value="ALL">All Payments</option>
+              <option value="ALL">All Payment Statuses</option>
               <option value="DBT Success">DBT Success</option>
               <option value="PFMS Verified">PFMS Verified</option>
               <option value="Under Grievance">Under Grievance</option>
@@ -151,80 +157,73 @@ export const CompensationDbtView: React.FC<CompensationDbtViewProps> = ({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-              <tr>
-                <th className="py-3 px-4">Beneficiary & Father/Spouse</th>
-                <th className="py-3 px-4">Village & District</th>
-                <th className="py-3 px-4">Aadhaar & Bank Account</th>
-                <th className="py-3 px-4">Awarded Compensation</th>
-                <th className="py-3 px-4">Status & UTR</th>
-                <th className="py-3 px-4 text-right">DBT Action</th>
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <th className="py-2.5 px-4">Beneficiary & Share</th>
+                <th className="py-2.5 px-4">Village / District</th>
+                <th className="py-2.5 px-4">Aadhaar & Bank Account</th>
+                <th className="py-2.5 px-4">Statutory Award</th>
+                <th className="py-2.5 px-4">Status & UTR</th>
+                <th className="py-2.5 px-4 text-right">DBT Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-200">
               {filteredBeneficiaries.map(ben => {
                 const isPaid = ben.paymentStatus === 'DBT Success';
                 const isProcessing = processingId === ben.id;
 
                 return (
-                  <tr key={ben.id} className="hover:bg-slate-800/50 transition-colors">
+                  <tr key={ben.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-100">{ben.name}</div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
-                        S/o or W/o {ben.fatherHusbandName} • Share: {ben.sharePercentage}%
+                      <div className="font-bold text-[#1B365D] text-sm">{ben.name}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        S/o {ben.fatherHusbandName} • Share: <strong>{ben.sharePercentage}%</strong>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="text-slate-200 font-medium">{ben.village}</span>
-                      <span className="block text-[10px] text-slate-400">{ben.district}</span>
+                      <span className="font-semibold text-slate-800">{ben.village}</span>
+                      <span className="block text-[11px] text-slate-500">{ben.district}</span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="font-mono text-slate-200">
-                        Aadhaar: •••• •••• {ben.aadhaarLast4}
+                      <div className="font-mono text-slate-700">
+                        •••• •••• {ben.aadhaarLast4} (Aadhaar Seeded)
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">
-                        {ben.bankName} (IFSC: {ben.ifscCode})
+                      <div className="text-[11px] text-slate-500">
+                        {ben.bankName} • IFSC: <span className="font-mono">{ben.ifscCode}</span>
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-100">
-                      ₹{(ben.awardedAmountRupees / 10000000).toFixed(2)} Cr
-                      <span className="block text-[10px] text-slate-400 font-normal">
-                        ₹{ben.awardedAmountRupees.toLocaleString()}
-                      </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <Badge variant={isPaid ? 'emerald' : ben.paymentStatus === 'PFMS Verified' ? 'sky' : 'rose'}>
+                      <div className="font-bold text-slate-900 text-sm">
+                        ₹{(ben.awardedAmountRupees / 100000).toFixed(2)} Lakhs
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Solatium: 100% included
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <Badge variant={isPaid ? 'emerald' : ben.paymentStatus === 'PFMS Verified' ? 'blue' : 'amber'}>
                         {ben.paymentStatus}
                       </Badge>
-                      {ben.pfmsTxnId && (
-                        <span className="block text-[10px] text-sky-400 font-mono mt-1">
-                          {ben.pfmsTxnId}
-                        </span>
+                      {ben.utrNumber && (
+                        <div className="font-mono text-[10px] text-slate-500 mt-1">
+                          UTR: {ben.utrNumber}
+                        </div>
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       {isPaid ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+                        <span className="text-emerald-700 font-semibold text-xs inline-flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" /> Disbursed
                         </span>
                       ) : (
                         <button
                           onClick={() => handleDisburseClick(ben.id)}
                           disabled={isProcessing}
-                          className="px-2.5 py-1 rounded bg-emerald-800 hover:bg-emerald-700 text-white font-medium text-xs transition-colors flex items-center gap-1 ml-auto disabled:opacity-50"
+                          className="px-3 py-1.5 bg-[#1B365D] hover:bg-[#122642] text-white rounded font-semibold text-xs shadow-xs transition-colors inline-flex items-center gap-1"
                         >
-                          {isProcessing ? (
-                            <>
-                              <RefreshCw className="w-3 h-3 animate-spin" />
-                              <span>Settling...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Send className="w-3 h-3" />
-                              <span>Trigger DBT</span>
-                            </>
-                          )}
+                          <Send className="w-3 h-3" />
+                          <span>{isProcessing ? 'Triggering...' : 'Disburse DBT'}</span>
                         </button>
                       )}
                     </td>

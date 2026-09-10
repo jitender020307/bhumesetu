@@ -1,243 +1,358 @@
 import React, { useState } from 'react';
 import { 
-  Search, 
   Bell, 
-  ShieldCheck, 
-  Calculator, 
+  HelpCircle, 
   ChevronDown, 
+  FileText,
+  User as UserIcon,
+  Globe,
+  Sliders,
+  LogOut,
   ExternalLink,
-  CheckCircle2,
-  AlertCircle
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
-import { User, UserRole } from '../../types';
-import { AVAILABLE_ROLES } from '../../data/mockData';
+import { User } from '../../types';
 
 interface HeaderProps {
   currentUser: User;
-  onRoleChange: (role: UserRole) => void;
+  onSwitchUser: (user: User) => void;
+  availableUsers: User[];
+  isOfficerMode: boolean;
+  onToggleMode: (officerMode: boolean) => void;
   onOpenCalculator: () => void;
-  selectedState: string;
-  onStateChange: (state: string) => void;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  onOpenHelpModal: () => void;
+  language: 'en' | 'hi';
+  onToggleLanguage: () => void;
+  fontSizeLevel: 'normal' | 'large' | 'xlarge';
+  onChangeFontSize: (level: 'normal' | 'large' | 'xlarge') => void;
+  highContrast: boolean;
+  onToggleContrast: () => void;
   unreadAlertsCount: number;
-  onAlertsClick: () => void;
+  onNavigateToAlerts: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentUser,
-  onRoleChange,
+  onSwitchUser,
+  availableUsers,
+  isOfficerMode,
+  onToggleMode,
   onOpenCalculator,
-  selectedState,
-  onStateChange,
-  searchQuery,
-  onSearchChange,
+  onOpenHelpModal,
+  language,
+  onToggleLanguage,
+  fontSizeLevel,
+  onChangeFontSize,
+  highContrast,
+  onToggleContrast,
   unreadAlertsCount,
-  onAlertsClick
+  onNavigateToAlerts
 }) => {
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
-  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
-
-  const statesList = ['All India Corridors', 'Gujarat', 'Maharashtra', 'Madhya Pradesh', 'Tamil Nadu', 'Uttar Pradesh'];
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showAccessibilityMenu, setShowAccessibilityMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 lg:px-6 py-2.5">
-      <div className="flex items-center justify-between gap-4">
-        {/* Left: Brand Identity */}
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 select-none shadow-xs">
+      {/* Top Gov Banner Strip with tricolor bar */}
+      <div className="bg-[#1B365D] text-white px-4 lg:px-8 py-1 flex items-center justify-between text-xs border-b border-blue-950">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-emerald-600 to-sky-700 text-white shadow-lg p-0.5">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              {/* Ashoka chakra inspired / Land Bridge Icon */}
-              <div className="relative flex items-center justify-center">
-                <span className="text-base font-black tracking-tighter text-amber-400">भू</span>
-                <span className="absolute -bottom-1 text-[9px] font-extrabold text-emerald-400">SETU</span>
-              </div>
+          {/* Subtle Indian Flag Ribbon */}
+          <div className="flex flex-col h-3 w-5 rounded-xs overflow-hidden border border-white/30 shrink-0">
+            <div className="h-1 bg-[#FF9933] w-full"></div>
+            <div className="h-1 bg-white w-full flex items-center justify-center">
+              <div className="w-0.5 h-0.5 rounded-full bg-[#000080]"></div>
+            </div>
+            <div className="h-1 bg-[#138808] w-full"></div>
+          </div>
+          <span className="font-medium tracking-wide text-slate-100">
+            {language === 'en' ? 'Government of India' : 'भारत सरकार'} • {language === 'en' ? 'National Portal for Land Acquisition Governance' : 'भूमि अधिग्रहण राष्ट्रीय पोर्टल'}
+          </span>
+        </div>
+
+        {/* Accessibility & Language Bar */}
+        <div className="flex items-center gap-4 text-xs">
+          {/* Accessibility Quick Tools */}
+          <div className="hidden sm:flex items-center gap-1.5 border-r border-blue-900 pr-3">
+            <span className="text-slate-300 text-[11px]">Text Size:</span>
+            <button
+              onClick={() => onChangeFontSize('normal')}
+              className={`px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                fontSizeLevel === 'normal' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white'
+              }`}
+              title="Standard Text Size"
+            >
+              A
+            </button>
+            <button
+              onClick={() => onChangeFontSize('large')}
+              className={`px-1.5 py-0.5 rounded text-[12px] font-bold ${
+                fontSizeLevel === 'large' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white'
+              }`}
+              title="Large Text"
+            >
+              A+
+            </button>
+            <button
+              onClick={() => onChangeFontSize('xlarge')}
+              className={`px-1.5 py-0.5 rounded text-[13px] font-black ${
+                fontSizeLevel === 'xlarge' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white'
+              }`}
+              title="Extra Large Text"
+            >
+              A++
+            </button>
+            
+            <button
+              onClick={onToggleContrast}
+              className={`ml-2 px-1.5 py-0.5 rounded text-[11px] border ${
+                highContrast ? 'bg-amber-400 text-black border-amber-300 font-bold' : 'border-white/30 text-slate-200 hover:bg-white/10'
+              }`}
+              title="Toggle High Contrast"
+            >
+              {highContrast ? 'Standard Contrast' : 'High Contrast'}
+            </button>
+          </div>
+
+          {/* Language Selector */}
+          <button
+            onClick={onToggleLanguage}
+            className="flex items-center gap-1 hover:text-amber-300 transition-colors font-medium cursor-pointer"
+            title="Switch Portal Language"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>{language === 'en' ? 'हिन्दी' : 'English'}</span>
+          </button>
+
+          {/* Help & FAQs */}
+          <button
+            onClick={onOpenHelpModal}
+            className="flex items-center gap-1 hover:text-amber-300 transition-colors font-medium cursor-pointer"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">{language === 'en' ? 'Help & Support' : 'सहायता'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Header Bar */}
+      <div className="px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
+        {/* Left: Official Platform Identity */}
+        <div className="flex items-center gap-3.5">
+          <div className="flex items-center justify-center w-11 h-11 rounded-sm bg-[#1B365D] text-white shadow-xs p-1">
+            {/* Clean Devanagari / Typography Seal Mark */}
+            <div className="w-full h-full border border-amber-400/80 rounded-xs flex flex-col items-center justify-center">
+              <span className="text-base font-bold text-amber-300 leading-none">भू</span>
+              <span className="text-[9px] tracking-wider font-semibold text-white">SETU</span>
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-xl font-bold text-[#1B365D] tracking-tight">
                 BHOOMISETU
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                  SIH26016
-                </span>
-              </h1>
-              {/* Indian Flag micro-ribbon */}
-              <div className="flex h-3 w-4.5 rounded-[2px] overflow-hidden border border-slate-700 shadow-xs">
-                <div className="w-full bg-orange-500 h-1"></div>
-                <div className="w-full bg-white h-1 flex items-center justify-center">
-                  <div className="w-0.5 h-0.5 rounded-full bg-blue-900"></div>
-                </div>
-                <div className="w-full bg-green-600 h-1"></div>
-              </div>
+              </span>
+              <span className="hidden sm:inline-block px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-xs border border-slate-300">
+                Official Digital Service
+              </span>
             </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
-              National Land Acquisition & Management System • PM GatiShakti NMP
+            <p className="text-xs text-slate-600 font-normal">
+              {language === 'en' 
+                ? 'National Land Acquisition & Project Management Platform' 
+                : 'राष्ट्रीय भूमि अधिग्रहण एवं परियोजना प्रबंधन मंच'}
             </p>
           </div>
         </div>
 
-        {/* Center: Global Search & State Filter */}
-        <div className="flex-1 max-w-xl mx-2 hidden md:flex items-center gap-2">
-          {/* State / Corridor Dropdown */}
-          <select
-            value={selectedState}
-            onChange={e => onStateChange(e.target.value)}
-            className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-sky-500 cursor-pointer"
+        {/* Center / Mode Navigation: Public Portal vs Officer Workspace */}
+        <div className="hidden md:flex items-center bg-slate-100 p-1 rounded border border-slate-300">
+          <button
+            onClick={() => onToggleMode(false)}
+            className={`px-4 py-1.5 rounded text-xs font-semibold transition-all ${
+              !isOfficerMode
+                ? 'bg-white text-[#1B365D] shadow-xs border border-slate-200'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
           >
-            {statesList.map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-
-          {/* Search input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => onSearchChange(e.target.value)}
-              placeholder="Search Survey # (e.g. 142/2A), Parcel ID, Village, Khata, or Khatedar..."
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => onSearchChange('')}
-                className="absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-200"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+            {language === 'en' ? 'Citizen Public Portal' : 'नागरिक सार्वजनिक पोर्टल'}
+          </button>
+          <button
+            onClick={() => onToggleMode(true)}
+            className={`px-4 py-1.5 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              isOfficerMode
+                ? 'bg-[#1B365D] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>{language === 'en' ? 'Officer Workspace' : 'अधिकारी कार्यक्षेत्र'}</span>
+          </button>
         </div>
 
-        {/* Right: Quick Tools, Role Selector, User Info */}
-        <div className="flex items-center gap-2.5">
-          {/* RFCTLARR 2013 Calculator Button */}
+        {/* Right: Actions, Notifications & Officer Profile */}
+        <div className="flex items-center gap-3">
+          {/* Official Compensation Calculator Quick Action */}
           <button
             onClick={onOpenCalculator}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-950/80 border border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/60 text-xs font-medium transition-colors shadow-xs"
-            title="Open Statutory RFCTLARR 2013 Compensation Calculator"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#1B365D] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded transition-colors"
+            title="Open RFCTLARR Act 2013 Compensation Calculator"
           >
-            <Calculator className="w-3.5 h-3.5 text-emerald-400" />
-            <span>LARR Calc</span>
+            <FileText className="w-3.5 h-3.5 text-blue-700" />
+            <span>LARR Calculator</span>
           </button>
 
-          {/* Live GatiShakti Sync Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-400">GatiShakti:</span>
-            <span className="text-emerald-400 font-medium">LIVE</span>
-          </div>
-
-          {/* Notifications */}
+          {/* Notifications / Alerts Indicator */}
           <div className="relative">
             <button
-              onClick={() => {
-                setShowNotificationMenu(!showNotificationMenu);
-                if (showNotificationMenu) onAlertsClick();
-              }}
-              className="relative p-2 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-              title="System Alerts & Escalations"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-sm relative transition-colors border border-transparent hover:border-slate-200"
+              title="Official Notices & Urgent Stay Alerts"
             >
               <Bell className="w-4 h-4" />
               {unreadAlertsCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-                  {unreadAlertsCount}
-                </span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-amber-600 rounded-full"></span>
               )}
             </button>
 
-            {/* Notification Dropdown */}
-            {showNotificationMenu && (
-              <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-3 z-50 text-xs">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                  <span className="font-semibold text-slate-200">Active High-Priority Alerts</span>
-                  <span className="text-[10px] text-rose-400 font-mono">{unreadAlertsCount} pending</span>
+            {/* Notification Dropdown Menu */}
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded shadow-lg z-50 p-3 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <span className="font-semibold text-slate-800">Pending Actions & Alerts</span>
+                  <span className="text-[11px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-medium">
+                    {unreadAlertsCount} Active Cases
+                  </span>
                 </div>
-                <div className="space-y-2 mt-2">
-                  <div className="p-2 rounded bg-rose-950/50 border border-rose-900/60">
-                    <div className="flex items-start gap-1.5 text-rose-300 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                      <span>Bombay HC Stay: Vasai Mangrove Corridor</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mt-1">42.4 Ha stalled. Hearing scheduled for Sept 24.</p>
+                <div className="py-2 space-y-2 max-h-60 overflow-y-auto">
+                  <div 
+                    onClick={() => {
+                      setShowNotifications(false);
+                      onNavigateToAlerts();
+                    }}
+                    className="p-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded cursor-pointer transition-colors"
+                  >
+                    <p className="font-semibold text-amber-950">High Court Stay Notice • Gujarat</p>
+                    <p className="text-[11px] text-amber-900 mt-0.5">Vadodara Section 15 Hearing scheduled on 18-Sep-2026</p>
                   </div>
-                  <div className="p-2 rounded bg-amber-950/50 border border-amber-900/60">
-                    <div className="flex items-start gap-1.5 text-amber-300 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                      <span>Ken-Betwa FRA Gram Sabha Consensus Pending</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mt-1">3 tribal villages in Panna buffer require special corpus.</p>
+                  <div 
+                    onClick={() => {
+                      setShowNotifications(false);
+                      onNavigateToAlerts();
+                    }}
+                    className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded cursor-pointer transition-colors"
+                  >
+                    <p className="font-semibold text-slate-800">PFMS Batch Reconciliation Ready</p>
+                    <p className="text-[11px] text-slate-600 mt-0.5">34 Beneficiaries approved for Direct Benefit Transfer</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowNotificationMenu(false);
-                    onAlertsClick();
-                  }}
-                  className="w-full mt-2 py-1.5 text-center text-sky-400 hover:text-sky-300 font-medium text-[11px]"
-                >
-                  View All Court Stays & Bottlenecks →
-                </button>
+                <div className="pt-2 border-t border-slate-200 text-center">
+                  <button
+                    onClick={() => {
+                      setShowNotifications(false);
+                      onNavigateToAlerts();
+                    }}
+                    className="text-blue-800 hover:underline text-xs font-medium"
+                  >
+                    View All Grievances & Legal Stays →
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Role Switcher Dropdown (Crucial for SIH evaluation to test all stakeholder roles) */}
+          {/* Officer Profile & Role Context */}
           <div className="relative">
             <button
-              onClick={() => setShowRoleMenu(!showRoleMenu)}
-              className="flex items-center gap-2 pl-2.5 pr-2 py-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors text-left"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-left bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded transition-colors"
             >
-              <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] uppercase font-bold text-sky-400 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  Role Switcher
-                </span>
-                <span className="text-xs font-medium text-slate-200 truncate max-w-[130px]">
-                  {AVAILABLE_ROLES.find(r => r.role === currentUser.role)?.label}
-                </span>
+              <div className="w-7 h-7 rounded-full bg-[#1B365D] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                {currentUser.name.charAt(0)}
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <div className="hidden xl:block min-w-0 max-w-[140px]">
+                <p className="font-medium text-slate-900 truncate">{currentUser.name}</p>
+                <p className="text-[10px] text-slate-500 truncate">{currentUser.designation}</p>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
             </button>
 
-            {showRoleMenu && (
-              <div className="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50 text-xs">
-                <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-                  Switch Stakeholder Persona (SIH Demo)
+            {/* Profile Dropdown Menu */}
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded shadow-xl z-50 p-3 text-xs">
+                <div className="pb-2.5 border-b border-slate-200">
+                  <p className="font-bold text-slate-900 text-sm">{currentUser.name}</p>
+                  <p className="text-slate-600 font-medium">{currentUser.designation}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{currentUser.department}</p>
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-900 text-[10px] font-semibold uppercase">
+                      {currentUser.state} Jurisdiction
+                    </span>
+                  </div>
                 </div>
-                <div className="py-1 space-y-1">
-                  {AVAILABLE_ROLES.map(item => {
-                    const isSelected = item.role === currentUser.role;
-                    return (
+
+                <div className="py-2">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1.5">
+                    Authorized Designations
+                  </p>
+                  <div className="space-y-1">
+                    {availableUsers.map(u => (
                       <button
-                        key={item.role}
+                        key={u.id}
                         onClick={() => {
-                          onRoleChange(item.role);
-                          setShowRoleMenu(false);
+                          onSwitchUser(u);
+                          setShowProfileMenu(false);
                         }}
-                        className={`w-full text-left p-2 rounded-lg transition-colors ${
-                          isSelected
-                            ? 'bg-sky-950/80 border border-sky-800/70 text-sky-200'
-                            : 'hover:bg-slate-800/70 text-slate-300'
+                        className={`w-full text-left p-1.5 rounded text-xs transition-colors flex items-center justify-between ${
+                          currentUser.id === u.id 
+                            ? 'bg-blue-50 text-blue-900 font-semibold border border-blue-200' 
+                            : 'hover:bg-slate-100 text-slate-700'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-xs">{item.label}</span>
-                          {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
-                        </div>
-                        <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">{item.desc}</p>
-                        <span className="text-[9px] text-slate-500 font-mono block mt-1">e.g. {item.sampleUser}</span>
+                        <span className="truncate">{u.name}</span>
+                        <span className="text-[10px] text-slate-500 shrink-0 ml-1">
+                          {u.role.replace(/_/g, ' ')}
+                        </span>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200">
+                  <button
+                    onClick={() => {
+                      onToggleMode(!isOfficerMode);
+                      setShowProfileMenu(false);
+                    }}
+                    className="w-full text-left text-blue-800 hover:underline font-medium flex items-center gap-1.5 py-1"
+                  >
+                    <span>Switch to {isOfficerMode ? 'Citizen Public View' : 'Officer Workspace'}</span>
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Mobile Mode Switcher Bar */}
+      <div className="md:hidden flex border-t border-slate-200 bg-slate-100 p-1">
+        <button
+          onClick={() => onToggleMode(false)}
+          className={`flex-1 py-1.5 text-xs font-semibold text-center rounded ${
+            !isOfficerMode ? 'bg-white text-[#1B365D] shadow-xs' : 'text-slate-600'
+          }`}
+        >
+          Citizen Public Portal
+        </button>
+        <button
+          onClick={() => onToggleMode(true)}
+          className={`flex-1 py-1.5 text-xs font-semibold text-center rounded ${
+            isOfficerMode ? 'bg-[#1B365D] text-white shadow-xs' : 'text-slate-600'
+          }`}
+        >
+          Officer Workspace
+        </button>
       </div>
     </header>
   );

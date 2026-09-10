@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from '../common/Modal';
-import { Calculator, CheckCircle, Info, RefreshCw, Copy } from 'lucide-react';
+import { Calculator, CheckCircle2, Info, RefreshCw, Copy, FileText, AlertCircle } from 'lucide-react';
 import { apiService } from '../../services/api';
 
 interface CompensationCalculatorModalProps {
@@ -39,112 +39,136 @@ export const CompensationCalculatorModal: React.FC<CompensationCalculatorModalPr
   };
 
   const handleCopySummary = () => {
-    const text = `RFCTLARR Act 2013 Compensation Award Breakdown:
-- Area: ${areaAcres} Acres (${isRural ? 'Rural' : 'Urban'})
+    const text = `Government of India - RFCTLARR Act 2013 Compensation Assessment:
+- Land Area: ${areaAcres} Acres (${isRural ? 'Rural Area' : 'Urban Area'})
 - Base Market Value: ${formatINR(calc.baseLandValue)}
-- Multiplier Applied: ${calc.multiplier}x
+- Rural Multiplier Factor: ${calc.multiplier}x
 - Multiplied Land Value: ${formatINR(calc.multipliedLandValue)}
-- Assets Attached (Trees & Structures): ${formatINR(calc.assetsAttached)}
-- Solatium (100% statutory): ${formatINR(calc.solatiumAmount)}
-- Additional 12% p.a. Interest (${monthsElapsed} mo): ${formatINR(calc.additionalMarketValue)}
-====================================
-TOTAL STATUTORY AWARD: ${formatINR(calc.totalAwardAmount)}`;
+- Attached Assets (Trees & Structures): ${formatINR(calc.assetsAttached)}
+- Statutory Solatium (100% under Sec 30(1)): ${formatINR(calc.solatiumAmount)}
+- Additional 12% p.a. Value (Sec 30(3)): ${formatINR(calc.additionalMarketValue)}
+--------------------------------------------------
+ESTIMATED STATUTORY COMPENSATION: ${formatINR(calc.totalAwardAmount)}
+* Indicative calculation. Final compensation is subject to applicable law, government notification and competent authority approval.`;
+
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="RFCTLARR Act 2013 Statutory Compensation Calculator"
-      subtitle="Calculated in compliance with Sections 26, 29 & 30 of First Schedule (LARR 2013)"
+      title="Land Acquisition Compensation Calculator"
+      subtitle="Statutory Valuation Framework under First Schedule of RFCTLARR Act 2013"
       maxWidth="4xl"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Inputs */}
-        <div className="lg:col-span-6 space-y-4 bg-slate-800/40 p-4 rounded-lg border border-slate-800">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-700/60">
-            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Calculator className="w-3.5 h-3.5" /> Parameter Inputs
-            </span>
-            <button
-              onClick={() => {
-                setAreaAcres(2.5);
-                setCircleRatePerAcre(2500000);
-                setIsRural(true);
-                setTreeValuation(350000);
-                setStructureValuation(650000);
-                setMonthsElapsed(14);
-              }}
-              className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1"
-            >
-              <RefreshCw className="w-3 h-3" /> Reset Defaults
-            </button>
-          </div>
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Left Inputs (Col 6) */}
+          <div className="lg:col-span-6 space-y-3.5 bg-slate-50 p-4 rounded border border-slate-200 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <span className="font-bold text-[#1B365D] uppercase tracking-wide flex items-center gap-1.5">
+                <Calculator className="w-3.5 h-3.5" />
+                Land & Valuation Parameters
+              </span>
+              <button
+                onClick={() => {
+                  setAreaAcres(2.5);
+                  setCircleRatePerAcre(2500000);
+                  setIsRural(true);
+                  setTreeValuation(350000);
+                  setStructureValuation(650000);
+                  setMonthsElapsed(14);
+                }}
+                className="text-slate-500 hover:text-slate-800 flex items-center gap-1 text-[11px]"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Reset Defaults
+              </button>
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Acquisition Area (in Acres)
-            </label>
-            <input
-              type="number"
-              step="0.05"
-              value={areaAcres}
-              onChange={e => setAreaAcres(Math.max(0.01, parseFloat(e.target.value) || 0))}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+            {/* Area & Classification */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Acquisition Area (Acres)
+                </label>
+                <input
+                  type="number"
+                  step="0.05"
+                  value={areaAcres}
+                  onChange={e => setAreaAcres(Math.max(0.01, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Circle Rate / Market Base Rate per Acre (₹)
-            </label>
-            <input
-              type="number"
-              step="50000"
-              value={circleRatePerAcre}
-              onChange={e => setCircleRatePerAcre(Math.max(0, parseInt(e.target.value) || 0))}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
-            />
-            <p className="text-[11px] text-slate-400 mt-1">Average registered sale deeds or SDR rate under Sec 26</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Land Location Type
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsRural(true)}
-                  className={`flex-1 py-1.5 px-3 text-xs rounded-lg border font-medium transition-colors ${
-                    isRural
-                      ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
-                  }`}
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Location Classification
+                </label>
+                <select
+                  value={isRural ? 'rural' : 'urban'}
+                  onChange={e => setIsRural(e.target.value === 'rural')}
+                  className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
                 >
-                  Rural (1.5x - 2.0x)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsRural(false)}
-                  className={`flex-1 py-1.5 px-3 text-xs rounded-lg border font-medium transition-colors ${
-                    !isRural
-                      ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Urban (1.0x)
-                </button>
+                  <option value="rural">Rural Area (1.25x - 2.0x)</option>
+                  <option value="urban">Urban Area (1.0x)</option>
+                </select>
               </div>
             </div>
 
+            {/* Circle Rate / Jantri Value */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Notification Elapsed (Months)
+              <label className="block font-semibold text-slate-700 mb-1">
+                Circle Rate / Jantri Value per Acre (₹)
+              </label>
+              <input
+                type="number"
+                step="50000"
+                value={circleRatePerAcre}
+                onChange={e => setCircleRatePerAcre(Math.max(10000, parseFloat(e.target.value) || 0))}
+                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
+              />
+              <span className="text-[11px] text-slate-500 mt-0.5 block">
+                Higher of registered sale deeds or notified district collectorate rate.
+              </span>
+            </div>
+
+            {/* Attached Assets (Section 29) */}
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Horticulture / Trees (₹)
+                </label>
+                <input
+                  type="number"
+                  step="10000"
+                  value={treeValuation}
+                  onChange={e => setTreeValuation(Math.max(0, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Structures / Wells (₹)
+                </label>
+                <input
+                  type="number"
+                  step="25000"
+                  value={structureValuation}
+                  onChange={e => setStructureValuation(Math.max(0, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
+                />
+              </div>
+            </div>
+
+            {/* Months elapsed for 12% p.a. */}
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">
+                Time Elapsed Since Section 11/3A Publication (Months)
               </label>
               <input
                 type="number"
@@ -152,108 +176,95 @@ TOTAL STATUTORY AWARD: ${formatINR(calc.totalAwardAmount)}`;
                 max="60"
                 value={monthsElapsed}
                 onChange={e => setMonthsElapsed(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-700"
               />
+              <span className="text-[11px] text-slate-500 mt-0.5 block">
+                Calculates additional 12% per annum under Section 30(3).
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Tree / Horticulture Valuation (₹)
-              </label>
-              <input
-                type="number"
-                step="10000"
-                value={treeValuation}
-                onChange={e => setTreeValuation(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
-              />
+          {/* Right Calculation Award Breakdown (Col 6) */}
+          <div className="lg:col-span-6 bg-white border border-slate-200 rounded p-4 shadow-xs flex flex-col justify-between text-xs space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-bold text-slate-900 uppercase tracking-wide">
+                  Statutory Valuation Summary
+                </span>
+                <span className="text-[11px] text-slate-500">First Schedule</span>
+              </div>
+
+              <div className="space-y-2 text-slate-700">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Base Land Value:</span>
+                  <span className="font-semibold text-slate-900">{formatINR(calc.baseLandValue)}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Rural Multiplier:</span>
+                  <span className="font-semibold text-blue-900">{calc.multiplier}x (Notified)</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Multiplied Land Value:</span>
+                  <span className="font-semibold text-slate-900">{formatINR(calc.multipliedLandValue)}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Assets Attached (Sec 29):</span>
+                  <span className="font-semibold text-slate-900">{formatINR(calc.assetsAttached)}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Solatium (100% under Sec 30(1)):</span>
+                  <span className="font-semibold text-emerald-800">{formatINR(calc.solatiumAmount)}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Additional 12% p.a. (Sec 30(3)):</span>
+                  <span className="font-semibold text-slate-900">{formatINR(calc.additionalMarketValue)}</span>
+                </div>
+              </div>
+
+              {/* Total Award Banner */}
+              <div className="p-3 bg-[#1B365D] text-white rounded mt-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 block">
+                  Total Estimated Statutory Compensation
+                </span>
+                <span className="text-xl font-bold text-white block mt-0.5">
+                  {formatINR(calc.totalAwardAmount)}
+                </span>
+                <span className="text-[10px] text-slate-300 block mt-0.5">
+                  ₹{(calc.totalAwardAmount / 100000).toFixed(2)} Lakhs • Directly payable via PFMS DBT
+                </span>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Structure / Well Valuation (₹)
-              </label>
-              <input
-                type="number"
-                step="10000"
-                value={structureValuation}
-                onChange={e => setStructureValuation(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
-              />
+
+            {/* Action Buttons */}
+            <div className="pt-2 flex items-center gap-2">
+              <button
+                onClick={handleCopySummary}
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 border border-slate-300"
+              >
+                {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Assessment Copied' : 'Copy Assessment'}</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-[#1B365D] hover:bg-[#122642] text-white rounded font-semibold text-xs"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Right Output Breakdown */}
-        <div className="lg:col-span-6 flex flex-col justify-between bg-slate-950/70 p-4 rounded-lg border border-slate-800">
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <span className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                Statutory Compensation Ledger
-              </span>
-              <button
-                onClick={handleCopySummary}
-                className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 px-2 py-1 bg-emerald-950/50 border border-emerald-800/60 rounded"
-              >
-                {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? 'Copied' : 'Copy Schedule'}
-              </button>
-            </div>
-
-            <div className="mt-3 space-y-2.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400">1. Base Market Value ({areaAcres} Acres × {formatINR(circleRatePerAcre)}):</span>
-                <span className="font-mono text-slate-200 font-medium">{formatINR(calc.baseLandValue)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400">2. Statutory Multiplier (Sec 26):</span>
-                <span className="font-mono text-emerald-400 font-semibold">{calc.multiplier}x ({isRural ? 'Rural Area' : 'Urban Area'})</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400">3. Multiplied Land Value:</span>
-                <span className="font-mono text-slate-200 font-medium">{formatINR(calc.multipliedLandValue)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400">4. Assets Attached (Sec 29 Trees + Structures):</span>
-                <span className="font-mono text-slate-200 font-medium">{formatINR(calc.assetsAttached)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60 bg-slate-900/40 px-2 rounded">
-                <span className="text-slate-300 font-medium">Subtotal Pre-Solatium Market Value:</span>
-                <span className="font-mono text-slate-200 font-bold">{formatINR(calc.totalMarketValue)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400 flex items-center gap-1">
-                  5. Solatium (100% Mandatory under Sec 30(1)):
-                  <Info className="w-3 h-3 text-slate-500" />
-                </span>
-                <span className="font-mono text-amber-400 font-semibold">{formatINR(calc.solatiumAmount)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800/60">
-                <span className="text-slate-400">6. Additional Market Value @ 12% p.a. (Sec 30(3) - {monthsElapsed} mos):</span>
-                <span className="font-mono text-sky-400 font-medium">{formatINR(calc.additionalMarketValue)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-800">
-            <div className="bg-emerald-950/50 border border-emerald-800/60 rounded-lg p-3 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-emerald-300 font-semibold block">
-                  Total Statutory Award (CALA Sanctioned)
-                </span>
-                <span className="text-xs text-slate-400">Under First Schedule of LARR 2013</span>
-              </div>
-              <div className="text-right">
-                <span className="text-xl font-bold font-mono text-emerald-400 block">
-                  {formatINR(calc.totalAwardAmount)}
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  ≈ ₹{(calc.totalAwardAmount / 10000000).toFixed(2)} Crores
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Mandatory Official Disclaimer required by Guidelines */}
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-950 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <p className="leading-relaxed">
+            <strong>Official Notice:</strong> Indicative calculation. Final compensation is subject to applicable law, government notification and competent authority approval.
+          </p>
         </div>
       </div>
     </Modal>

@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { AiRiskInsight } from '../../types';
 import { Badge } from '../common/Badge';
 import { 
-  Sparkles, 
   TrendingUp, 
   TrendingDown, 
   AlertTriangle, 
   CheckCircle2, 
-  Cpu, 
+  ShieldAlert, 
   ArrowRight,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  Building2,
+  FileWarning
 } from 'lucide-react';
 
 interface AiRiskAnalyticsViewProps {
@@ -28,32 +30,36 @@ export const AiRiskAnalyticsView: React.FC<AiRiskAnalyticsViewProps> = ({ risks 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 border border-indigo-800/60 rounded-xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="indigo" pulse>AI Predictive Engine</Badge>
-            <span className="text-xs text-indigo-300 font-mono">BhoomiSetu ML Decision Engine v2.4</span>
+            <span className="text-[11px] font-bold text-[#1B365D] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              Statutory Decision Support System (DSS)
+            </span>
+            <span className="text-xs text-slate-500 font-medium">
+              Section 19 Limitation & Statutory Risk Forecaster
+            </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-100 mt-1">
-            Predictive Land Acquisition Delay & Cost Overrun Engine
-          </h2>
-          <p className="text-xs text-slate-400 max-w-2xl mt-0.5">
-            Trained on 10+ years of national infrastructure land acquisition datasets to forecast litigation clusters, compensation disputes, forest clearance bottlenecks, and statutory lapsing risks.
+          <h1 className="text-xl font-bold text-slate-900 mt-1">
+            Statutory SLA Risk Prediction & Bottleneck Forecasting
+          </h1>
+          <p className="text-xs text-slate-600 max-w-2xl mt-0.5">
+            Statistical regression models calibrated against national infrastructure acquisition records to identify statutory lapsing risks, forest clearance delays, and valuation anomalies.
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-400">Model Precision:</span>
-          <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded border border-emerald-800">
-            94.8% F1 Score
+          <span className="text-xs text-slate-500 font-semibold">Model Confidence:</span>
+          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-300">
+            94.8% Empirical Accuracy
           </span>
         </div>
       </div>
 
-      {/* AI Risk Insights Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Grounded Decision Support Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {risks.map(risk => {
           const isMitigated = simulatedMitigation[risk.id];
           const displayDelay = isMitigated ? Math.round(risk.predictedDelayDays * 0.25) : risk.predictedDelayDays;
@@ -62,89 +68,100 @@ export const AiRiskAnalyticsView: React.FC<AiRiskAnalyticsViewProps> = ({ risks 
           return (
             <div 
               key={risk.id}
-              className={`rounded-xl border p-5 flex flex-col justify-between transition-all ${
+              className={`rounded border p-5 flex flex-col justify-between transition-all text-xs ${
                 isMitigated
-                  ? 'bg-emerald-950/20 border-emerald-800/80 shadow-emerald-950/20'
+                  ? 'bg-emerald-50/40 border-emerald-300 shadow-2xs'
                   : risk.riskScore > 75
-                  ? 'bg-slate-900 border-rose-800/70 shadow-xl'
-                  : 'bg-slate-900 border-slate-800'
+                  ? 'bg-rose-50/40 border-rose-300 shadow-xs'
+                  : 'bg-white border-slate-200 shadow-xs'
               }`}
             >
-              <div>
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Badge variant={isMitigated ? 'emerald' : risk.riskScore > 75 ? 'rose' : 'amber'}>
                     {risk.riskCategory}
                   </Badge>
-                  <div className="flex items-center gap-1 text-xs">
+                  <div className="flex items-center gap-1 font-semibold text-slate-500">
                     {risk.trend === 'increasing' ? (
-                      <TrendingUp className="w-3.5 h-3.5 text-rose-400" />
+                      <TrendingUp className="w-3.5 h-3.5 text-rose-700" />
                     ) : (
-                      <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
+                      <TrendingDown className="w-3.5 h-3.5 text-emerald-700" />
                     )}
-                    <span className="font-mono text-slate-400">{risk.confidenceScore}% conf</span>
+                    <span>{risk.confidenceScore}% Confidence</span>
                   </div>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-100 mt-2.5">
-                  {risk.projectName}
-                </h3>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    {risk.projectName}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-slate-500">Risk Score:</span>
+                    <span className={`font-bold ${risk.riskScore > 75 ? 'text-rose-800' : 'text-amber-800'}`}>
+                      {risk.riskScore} / 100
+                    </span>
+                  </div>
+                </div>
 
                 {/* Score & Impact Stats */}
-                <div className="grid grid-cols-2 gap-2 my-3 p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <div className="grid grid-cols-2 gap-2 p-3 rounded bg-slate-50 border border-slate-200">
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Forecasted Delay</span>
-                    <span className={`text-base font-bold font-mono ${isMitigated ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Forecasted Delay</span>
+                    <span className={`text-base font-bold ${isMitigated ? 'text-emerald-800' : 'text-rose-800'}`}>
                       +{displayDelay} Days
                     </span>
                     {isMitigated && (
-                      <span className="block text-[9px] text-emerald-400">(-75% saved)</span>
+                      <span className="block text-[10px] text-emerald-700 font-semibold">(-75% mitigated)</span>
                     )}
                   </div>
+
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Cost Escalation</span>
-                    <span className={`text-base font-bold font-mono ${isMitigated ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">CAPEX Escalation</span>
+                    <span className={`text-base font-bold ${isMitigated ? 'text-emerald-800' : 'text-slate-900'}`}>
                       +₹{displayEscalation} Cr
                     </span>
                     {isMitigated && (
-                      <span className="block text-[9px] text-emerald-400">(-70% avoided)</span>
+                      <span className="block text-[10px] text-emerald-700 font-semibold">(-70% avoided)</span>
                     )}
                   </div>
                 </div>
 
-                {/* Key Drivers */}
-                <div className="space-y-1.5 text-xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                    AI Identified Drivers:
+                {/* Root Cause & Risk Factors */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                    Statutory Bottleneck Factor
                   </span>
-                  {risk.keyDrivers.map((driver, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 text-slate-300 text-[11px]">
-                      <span className="text-indigo-400 font-bold">•</span>
-                      <span>{driver}</span>
-                    </div>
-                  ))}
+                  <p className="text-slate-700 leading-relaxed font-medium">
+                    {risk.rootCause}
+                  </p>
                 </div>
 
-                {/* Recommended Mitigation */}
-                <div className="mt-4 p-3 rounded-lg bg-indigo-950/40 border border-indigo-900/60 text-xs text-indigo-200">
-                  <span className="text-[10px] font-bold uppercase text-indigo-300 block flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-indigo-400" /> Prescribed Intervention:
+                {/* Recommended Administrative Action */}
+                <div className="p-2.5 rounded bg-blue-50/70 border border-blue-200">
+                  <span className="text-[10px] text-[#1B365D] uppercase font-bold block">
+                    Recommended Administrative Action
                   </span>
-                  <p className="mt-1 text-[11px] leading-relaxed">{risk.recommendedAction}</p>
+                  <p className="text-slate-800 text-[11px] mt-0.5 font-medium">
+                    {risk.recommendation}
+                  </p>
                 </div>
               </div>
 
-              {/* Action Simulation Button */}
-              <div className="mt-4 pt-3 border-t border-slate-800">
+              {/* Action Button */}
+              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-[11px] text-slate-500">
+                  {isMitigated ? 'Mitigation Scheduled' : 'Action Pending Review'}
+                </span>
+
                 <button
                   onClick={() => toggleMitigation(risk.id)}
-                  className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  className={`px-3 py-1.5 rounded font-semibold text-xs transition-colors ${
                     isMitigated
-                      ? 'bg-emerald-950/80 border border-emerald-700 text-emerald-300 hover:bg-emerald-900/80'
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+                      : 'bg-[#1B365D] hover:bg-[#122642] text-white'
                   }`}
                 >
-                  <Cpu className="w-3.5 h-3.5" />
-                  <span>{isMitigated ? 'Intervention Active (Simulated)' : 'Simulate Policy Mitigation'}</span>
+                  {isMitigated ? 'Revert Simulation' : 'Execute Mitigation Plan'}
                 </button>
               </div>
             </div>

@@ -42,6 +42,9 @@ export interface InfrastructureProject {
   parcelsCount: number;
   currentMilestone: string;
   coordinates: [number, number]; // [lat, lng]
+  leadAgency?: string;
+  statesInvolved?: string[];
+  type?: string;
 }
 
 export type ParcelStatus = 

@@ -44,31 +44,32 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
       <div 
         className="fixed inset-0" 
         onClick={onClose} 
       />
       <div 
-        className={`relative w-full ${widthClasses[maxWidth]} bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-10`}
+        className={`relative w-full ${widthClasses[maxWidth]} bg-white border border-slate-300 rounded-md shadow-xl overflow-hidden flex flex-col max-h-[90vh] z-10`}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        {/* Header - Government Deep Navy Accent Banner */}
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 bg-slate-50">
           <div>
-            <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+            <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+            {subtitle && <p className="text-xs text-slate-600 mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/70 rounded transition-colors"
+            title="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 overflow-y-auto space-y-4 text-slate-300 flex-1">
+        <div className="px-6 py-5 overflow-y-auto space-y-4 text-slate-800 flex-1">
           {children}
         </div>
       </div>

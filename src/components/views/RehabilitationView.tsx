@@ -9,7 +9,10 @@ import {
   CheckCircle2, 
   AlertCircle, 
   MapPin, 
-  ShieldCheck 
+  ShieldCheck,
+  Building2,
+  Truck,
+  Check
 } from 'lucide-react';
 
 interface RehabilitationViewProps {
@@ -21,18 +24,22 @@ export const RehabilitationView: React.FC<RehabilitationViewProps> = ({ records 
   const houseAllottedCount = records.filter(r => r.entitlements.alternativeHousePlotAllotted).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="indigo">RFCTLARR 2013 Second & Third Schedule</Badge>
-            <span className="text-xs text-slate-400">Rehabilitation & Resettlement Administrator</span>
+            <span className="text-[11px] font-bold text-[#1B365D] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              RFCTLARR 2013 Second & Third Schedule
+            </span>
+            <span className="text-xs text-slate-500 font-medium">
+              Rehabilitation & Resettlement Administrator (Section 31)
+            </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-100 mt-1">
+          <h1 className="text-xl font-bold text-slate-900 mt-1">
             Rehabilitation & Resettlement (R&R) Entitlements
-          </h2>
-          <p className="text-xs text-slate-400 max-w-2xl mt-0.5">
+          </h1>
+          <p className="text-xs text-slate-600 max-w-2xl mt-0.5">
             Statutory tracking of alternative housing plots, tribal displacement enhancements, subsistence grants, and vocational rehabilitation assistance.
           </p>
         </div>
@@ -40,110 +47,104 @@ export const RehabilitationView: React.FC<RehabilitationViewProps> = ({ records 
 
       {/* R&R Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase text-slate-400">Displaced Families (Project Affected)</span>
-          <div className="mt-2 text-2xl font-black font-mono text-slate-100">{displacedCount}</div>
-          <span className="text-[11px] text-slate-400">100% Social Impact Audited</span>
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Displaced Families (PAFs)</span>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{displacedCount} Families</div>
+          <span className="text-[11px] text-slate-500">100% Social Impact Audited</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase text-slate-400">Alternative House Plots Allotted</span>
-          <div className="mt-2 text-2xl font-black font-mono text-emerald-400">{houseAllottedCount}</div>
-          <span className="text-[11px] text-emerald-400">Model R&R Colonies</span>
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Alternative House Plots Allotted</span>
+          <div className="mt-2 text-2xl font-bold text-emerald-800">{houseAllottedCount} Allotted</div>
+          <span className="text-[11px] text-emerald-700 font-medium">Model R&R Colony Approved</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase text-slate-400">Subsistence Grants Disbursed</span>
-          <div className="mt-2 text-2xl font-black font-mono text-sky-400">₹36,000 - ₹60,000</div>
-          <span className="text-[11px] text-slate-400">Per Family / Annum</span>
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Subsistence Grants Disbursed</span>
+          <div className="mt-2 text-2xl font-bold text-[#1B365D]">₹36,000 / PAF</div>
+          <span className="text-[11px] text-slate-500">Per Family / 12 Months</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <span className="text-xs font-semibold uppercase text-slate-400">Vocational Training & Jobs</span>
-          <div className="mt-2 text-2xl font-black font-mono text-indigo-400">92% Enrolled</div>
-          <span className="text-[11px] text-slate-400">Skill India Mission Tie-up</span>
+        <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
+          <span className="text-xs font-semibold uppercase text-slate-500">Vocational Training & Jobs</span>
+          <div className="mt-2 text-2xl font-bold text-blue-900">92% Enrolled</div>
+          <span className="text-[11px] text-slate-500">Skill India Mission Tie-up</span>
         </div>
       </div>
 
       {/* R&R Family Ledger */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-100">
+      <div className="bg-white border border-slate-200 rounded shadow-xs overflow-hidden">
+        <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-900">
             Project-Affected Families Entitlement Matrix
-          </h3>
-          <span className="text-xs text-slate-400">Compliance with Section 31 R&R Scheme</span>
+          </h2>
+          <span className="text-xs text-slate-500">
+            Compliance with Section 31 R&R Scheme
+          </span>
         </div>
 
-        <div className="divide-y divide-slate-800/60">
+        <div className="divide-y divide-slate-200">
           {records.map(rec => (
-            <div key={rec.id} className="p-4 hover:bg-slate-800/40 transition-colors">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-800/60">
+            <div key={rec.id} className="p-4 hover:bg-slate-50 transition-colors text-xs">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-100">{rec.beneficiaryName}</span>
-                    <Badge variant={rec.isDisplacedFamily ? 'rose' : 'slate'} size="sm">
+                    <span className="font-bold text-[#1B365D] text-sm">{rec.beneficiaryName}</span>
+                    <Badge variant={rec.isDisplacedFamily ? 'amber' : 'slate'} size="sm">
                       {rec.isDisplacedFamily ? 'Displaced Family' : 'Land Loser Only'}
                     </Badge>
                   </div>
-                  <div className="text-xs text-slate-400 mt-0.5">
-                    {rec.village} • Project: {rec.projectCode}
+                  <div className="text-slate-600 mt-0.5">
+                    {rec.village} • Project: <strong>{rec.projectCode}</strong>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-slate-400">Grievance Status:</span>
-                  <Badge variant={rec.grievanceStatus === 'Resolved' ? 'emerald' : rec.grievanceStatus === 'Pending' ? 'amber' : 'slate'}>
+                  <span className="text-slate-500">R&R Grievance:</span>
+                  <Badge variant={rec.grievanceStatus === 'Resolved' ? 'emerald' : 'amber'}>
                     {rec.grievanceStatus}
                   </Badge>
                 </div>
               </div>
 
-              {/* Entitlement Breakdown Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3 text-xs">
-                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Residential Plot</span>
-                  {rec.entitlements.alternativeHousePlotAllotted ? (
-                    <div className="mt-1">
-                      <span className="font-semibold text-emerald-400 block">{rec.entitlements.plotNumber}</span>
-                      <span className="text-[10px] text-slate-400">{rec.entitlements.colonyName}</span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-500 mt-1 block">Not Applicable</span>
-                  )}
+              {/* Statutory Entitlements Breakdown */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3">
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                    Alternative Housing Plot
+                  </span>
+                  <span className="font-semibold text-slate-900 mt-0.5 block">
+                    {rec.entitlements.alternativeHousePlotAllotted 
+                      ? `Plot #${rec.entitlements.plotNumber} (${rec.entitlements.colonyName})` 
+                      : 'Not Applicable / Cash Option'}
+                  </span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Subsistence Allowance</span>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="font-mono font-bold text-slate-200">
-                      ₹{rec.entitlements.subsistenceGrantAmount.toLocaleString()}
-                    </span>
-                    <Badge variant={rec.entitlements.subsistenceGrantDisbursed ? 'emerald' : 'amber'} size="sm">
-                      {rec.entitlements.subsistenceGrantDisbursed ? 'Disbursed' : 'In Pipeline'}
-                    </Badge>
-                  </div>
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                    Subsistence Allowance (12 Mo)
+                  </span>
+                  <span className="font-semibold text-emerald-800 mt-0.5 block">
+                    ₹{rec.entitlements.subsistenceGrantAmount.toLocaleString()} • Disbursed
+                  </span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Relocation Grant</span>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="font-mono font-bold text-slate-200">
-                      ₹{rec.entitlements.displacementAllowanceAmount.toLocaleString()}
-                    </span>
-                    <Badge variant={rec.entitlements.displacementAllowanceDisbursed ? 'emerald' : 'amber'} size="sm">
-                      {rec.entitlements.displacementAllowanceDisbursed ? 'Paid' : 'Pending'}
-                    </Badge>
-                  </div>
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                    Transportation Allowance
+                  </span>
+                  <span className="font-semibold text-slate-900 mt-0.5 block">
+                    ₹{rec.entitlements.displacementAllowanceAmount.toLocaleString()} • {rec.entitlements.displacementAllowanceDisbursed ? 'Credited' : 'Pending'}
+                  </span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Livelihood Assistance</span>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="text-slate-200 font-medium">{rec.entitlements.vocationalTrainingStatus}</span>
-                    <Badge variant="indigo" size="sm">
-                      {rec.entitlements.employmentAssistance}
-                    </Badge>
-                  </div>
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                    Livelihood Assistance
+                  </span>
+                  <span className="font-semibold text-blue-900 mt-0.5 block truncate">
+                    {rec.entitlements.employmentAssistance}
+                  </span>
                 </div>
               </div>
             </div>

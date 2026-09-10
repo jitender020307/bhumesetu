@@ -11,9 +11,12 @@ import {
   FileText, 
   ExternalLink,
   ChevronRight,
-  Maximize2,
   Filter,
-  AlertTriangle
+  Check,
+  Building2,
+  Clock,
+  IndianRupee,
+  RefreshCw
 } from 'lucide-react';
 
 interface GisExplorerViewProps {
@@ -23,6 +26,8 @@ interface GisExplorerViewProps {
   onSelectParcel: (parcel: LandParcel) => void;
   onUpdateParcelStatus: (parcelId: string, newStatus: ParcelStatus) => void;
   onOpenCalculator: () => void;
+  onOpenDocModal?: (parcel: LandParcel) => void;
+  onInspectParcel?: (parcel: LandParcel) => void;
 }
 
 export const GisExplorerView: React.FC<GisExplorerViewProps> = ({
@@ -31,122 +36,287 @@ export const GisExplorerView: React.FC<GisExplorerViewProps> = ({
   selectedParcel,
   onSelectParcel,
   onUpdateParcelStatus,
-  onOpenCalculator
+  onOpenCalculator,
+  onOpenDocModal,
+  onInspectParcel
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  // Left Column Filters
+  const [selectedState, setSelectedState] = useState('ALL');
+  const [selectedDistrict, setSelectedDistrict] = useState('ALL');
+  const [selectedTehsil, setSelectedTehsil] = useState('ALL');
+  const [selectedVillage, setSelectedVillage] = useState('ALL');
+  const [selectedProjectId, setSelectedProjectId] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Map Layer Toggles
   const [showBufferZone, setShowBufferZone] = useState(true);
   const [showCadastralGrid, setShowCadastralGrid] = useState(true);
   const [showDroneLayer, setShowDroneLayer] = useState(false);
 
+  // Status updating state in right panel
+  const [statusDraft, setStatusDraft] = useState<ParcelStatus | ''>('');
+
   const filteredParcels = parcels.filter(p => {
+    if (selectedState !== 'ALL' && p.state !== selectedState) return false;
+    if (selectedDistrict !== 'ALL' && p.district !== selectedDistrict) return false;
+    if (selectedVillage !== 'ALL' && p.village !== selectedVillage) return false;
+    if (selectedProjectId !== 'ALL' && p.projectId !== selectedProjectId) return false;
     if (selectedStatus !== 'ALL' && p.status !== selectedStatus) return false;
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
         p.surveyNumber.toLowerCase().includes(q) ||
+        p.khataNumber.toLowerCase().includes(q) ||
         p.village.toLowerCase().includes(q) ||
-        p.landOwnerName.toLowerCase().includes(q) ||
-        p.parcelCode.toLowerCase().includes(q)
+        p.landOwnerName.toLowerCase().includes(q)
       );
     }
     return true;
   });
 
-  const activeParcel = selectedParcel || parcels[0];
+  const activeParcel = selectedParcel || filteredParcels[0] || parcels[0];
+
+  const handleApplyStatusChange = () => {
+    if (!statusDraft || !activeParcel) return;
+    onUpdateParcelStatus(activeParcel.id, statusDraft as ParcelStatus);
+    setStatusDraft('');
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Top Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-xl shadow-lg">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-sky-500/20 text-sky-400">
-            <Layers className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              National Cadastral GIS & Corridor Explorer
-              <span className="text-[10px] text-emerald-400 font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
-                BISAG-N / SOI Engine
-              </span>
-            </h2>
-            <p className="text-[11px] text-slate-400">
-              Interactive cadastral revenue survey boundaries overlaid on PM GatiShakti corridor alignment
-            </p>
-          </div>
+    <div className="space-y-4 max-w-7xl mx-auto">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3 bg-white p-4 rounded shadow-xs">
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Cadastral Survey & Infrastructure Alignment
+          </span>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">
+            GIS & Land Parcels Spatial Explorer
+          </h1>
+          <p className="text-xs text-slate-600">
+            Integrated spatial registry linking revenue maps (RoR 7/12) to corridor linear alignments and buffer zones.
+          </p>
         </div>
 
-        {/* Quick Search & Status Filter */}
         <div className="flex items-center gap-2">
-          <div className="relative w-52">
-            <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search Survey # or Village..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <select
-            value={selectedStatus}
-            onChange={e => setSelectedStatus(e.target.value)}
-            className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-sky-500"
+          <button
+            onClick={onOpenCalculator}
+            className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-blue-900 border border-slate-300 rounded text-xs font-semibold transition-colors"
           >
-            <option value="ALL">All Parcel Statuses</option>
-            <option value="Compensation_Paid">Compensation Paid</option>
-            <option value="Possession_Taken">Possession Taken</option>
-            <option value="Sec_11_Awarded">Sec 11 Awarded</option>
-            <option value="In_Dispute">In Dispute / Stays</option>
-          </select>
+            LARR Compensation Calculator
+          </button>
         </div>
       </div>
 
-      {/* Main Map + Inspector Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-210px)] min-h-[550px]">
-        {/* Left / Center Map View (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col h-full rounded-xl overflow-hidden shadow-xl">
-          {/* Map Layer Toggles */}
-          <div className="bg-slate-900 border-x border-t border-slate-800 px-3 py-2 flex items-center justify-between text-xs text-slate-300">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-1.5 cursor-pointer">
+      {/* 3-Column GIS Workspace */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-210px)] min-h-[580px]">
+        {/* LEFT COLUMN: FILTERS (Col span 3) */}
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded shadow-xs p-3.5 flex flex-col justify-between overflow-y-auto text-xs space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="font-bold text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-600" />
+                Filters
+              </span>
+              <button
+                onClick={() => {
+                  setSelectedState('ALL');
+                  setSelectedDistrict('ALL');
+                  setSelectedTehsil('ALL');
+                  setSelectedVillage('ALL');
+                  setSelectedProjectId('ALL');
+                  setSelectedStatus('ALL');
+                  setSearchQuery('');
+                }}
+                className="text-[11px] text-blue-700 hover:underline"
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Survey # / Khata
+              </label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="e.g. 142/2A or KH-819"
+                  className="w-full bg-slate-50 border border-slate-300 rounded pl-8 pr-2.5 py-1.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-700"
+                />
+              </div>
+            </div>
+
+            {/* State Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                State
+              </label>
+              <select
+                value={selectedState}
+                onChange={e => setSelectedState(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All States</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+              </select>
+            </div>
+
+            {/* District Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                District
+              </label>
+              <select
+                value={selectedDistrict}
+                onChange={e => setSelectedDistrict(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Districts</option>
+                <option value="Vadodara">Vadodara</option>
+                <option value="Bharuch">Bharuch</option>
+                <option value="Palghar">Palghar</option>
+                <option value="Thane">Thane</option>
+              </select>
+            </div>
+
+            {/* Tehsil / Taluka Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Tehsil / Taluka
+              </label>
+              <select
+                value={selectedTehsil}
+                onChange={e => setSelectedTehsil(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Tehsils</option>
+                <option value="Vadodara Rural">Vadodara Rural</option>
+                <option value="Waghodia">Waghodia</option>
+                <option value="Karjan">Karjan</option>
+              </select>
+            </div>
+
+            {/* Village Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Village
+              </label>
+              <select
+                value={selectedVillage}
+                onChange={e => setSelectedVillage(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Revenue Villages</option>
+                <option value="Chapad">Chapad</option>
+                <option value="Ankhol">Ankhol</option>
+                <option value="Kelanpur">Kelanpur</option>
+                <option value="Varnama">Varnama</option>
+              </select>
+            </div>
+
+            {/* Project Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Project
+              </label>
+              <select
+                value={selectedProjectId}
+                onChange={e => setSelectedProjectId(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Infrastructure Projects</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Acquisition Status */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Acquisition Status
+              </label>
+              <select
+                value={selectedStatus}
+                onChange={e => setSelectedStatus(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="Survey_Section3A_Notified">Section 3A / 11 Preliminary</option>
+                <option value="Objection_Hearing_Section15">Section 15 Objections</option>
+                <option value="Declaration_Section3D">Section 3D Declaration</option>
+                <option value="Award_Declared_Section3G">Section 3G / 23 Award</option>
+                <option value="Compensation_Paid">Compensation Paid (PFMS)</option>
+                <option value="Possession_Handed_Over">Possession Handed Over</option>
+              </select>
+            </div>
+
+            {/* Spatial Layers */}
+            <div className="pt-2 border-t border-slate-200 space-y-1.5">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">
+                GIS Layers
+              </span>
+              <label className="flex items-center gap-2 cursor-pointer text-slate-700">
                 <input
                   type="checkbox"
                   checked={showCadastralGrid}
                   onChange={e => setShowCadastralGrid(e.target.checked)}
-                  className="rounded bg-slate-800 border-slate-700 text-sky-500 focus:ring-0"
+                  className="rounded text-blue-900"
                 />
-                <span className="text-[11px] font-medium">Cadastral Revenue Polygons</span>
+                <span>Cadastral Survey Polygons</span>
               </label>
-
-              <label className="flex items-center gap-1.5 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-700">
                 <input
                   type="checkbox"
                   checked={showBufferZone}
                   onChange={e => setShowBufferZone(e.target.checked)}
-                  className="rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0"
+                  className="rounded text-blue-900"
                 />
-                <span className="text-[11px] font-medium">CRZ & Forest Buffer (500m)</span>
+                <span>500m Buffer / ROW Zone</span>
               </label>
-
-              <label className="flex items-center gap-1.5 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-700">
                 <input
                   type="checkbox"
                   checked={showDroneLayer}
                   onChange={e => setShowDroneLayer(e.target.checked)}
-                  className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0"
+                  className="rounded text-blue-900"
                 />
-                <span className="text-[11px] font-medium">Drone Orthomosaic (5cm)</span>
+                <span>Drone Orthomosaic (5cm)</span>
               </label>
             </div>
-
-            <span className="text-[11px] text-slate-400 font-mono">
-              Displaying {filteredParcels.length} of {parcels.length} parcels
-            </span>
           </div>
 
-          <div className="flex-1 w-full relative">
+          {/* Matches Counter */}
+          <div className="pt-2 border-t border-slate-200 text-slate-500 text-[11px] flex justify-between items-center">
+            <span>Filtered: <strong>{filteredParcels.length}</strong> parcels</span>
+            <span>Total: {parcels.length}</span>
+          </div>
+        </div>
+
+        {/* CENTER COLUMN: LARGE MAP (Col span 6) */}
+        <div className="lg:col-span-6 bg-white border border-slate-200 rounded shadow-xs overflow-hidden flex flex-col relative">
+          <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+            <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-blue-800" />
+              PM GatiShakti NMP Alignment Map
+            </span>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500">
+              <span>Projection: EPSG:4326</span>
+              <span>•</span>
+              <span className="text-emerald-700 font-semibold">Survey of India Base</span>
+            </div>
+          </div>
+
+          <div className="flex-1 relative min-h-[400px]">
             <LeafletMap
               parcels={filteredParcels}
               projects={projects}
@@ -158,154 +328,118 @@ export const GisExplorerView: React.FC<GisExplorerViewProps> = ({
           </div>
         </div>
 
-        {/* Right Cadastral Parcel Inspector (4 cols) */}
-        <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col h-full overflow-hidden shadow-xl">
-          <div className="px-4 py-3 border-b border-slate-800 bg-slate-950/70 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
-                Parcel Inspector
-              </span>
-              <span className="font-mono text-xs font-bold text-slate-100">
-                #{activeParcel?.surveyNumber}
-              </span>
-            </div>
-            <Badge 
-              variant={
-                activeParcel?.status === 'In_Dispute' 
-                  ? 'rose' 
-                  : activeParcel?.status === 'Compensation_Paid' 
-                  ? 'emerald' 
-                  : 'sky'
-              }
-              size="sm"
-            >
-              {activeParcel?.status.replace(/_/g, ' ')}
-            </Badge>
-          </div>
-
+        {/* RIGHT COLUMN: SELECTED PARCEL DETAILS (Col span 3) */}
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded shadow-xs p-4 flex flex-col justify-between overflow-y-auto text-xs space-y-4">
           {activeParcel ? (
-            <div className="p-4 overflow-y-auto space-y-4 flex-1 text-xs">
-              {/* Basic Ownership & Land Details */}
-              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Khatedar / Landowner:</span>
-                  <span className="font-semibold text-slate-100 text-right">{activeParcel.landOwnerName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Village & Taluk:</span>
-                  <span className="text-slate-200">{activeParcel.village}, {activeParcel.taluk}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">District & State:</span>
-                  <span className="text-slate-200">{activeParcel.district}, {activeParcel.state}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Khata / RoR Record:</span>
-                  <span className="font-mono text-sky-400 font-semibold">{activeParcel.khataNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Acquisition Extent:</span>
-                  <span className="font-bold text-slate-100">{activeParcel.areaAcres} Acres ({activeParcel.landCategory})</span>
-                </div>
-              </div>
-
-              {/* Digital Verification Badges */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 rounded bg-slate-950/80 border border-slate-800 flex items-center gap-2">
-                  <ShieldCheck className={`w-4 h-4 ${activeParcel.digiLockerVerified ? 'text-emerald-400' : 'text-slate-500'}`} />
-                  <div>
-                    <span className="text-[10px] text-slate-400 block">DigiLocker</span>
-                    <span className={`text-[11px] font-semibold ${activeParcel.digiLockerVerified ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {activeParcel.digiLockerVerified ? 'Verified RoR' : 'Unverified'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-2 rounded bg-slate-950/80 border border-slate-800 flex items-center gap-2">
-                  <CheckCircle2 className={`w-4 h-4 ${activeParcel.droneSurveyCompleted ? 'text-sky-400' : 'text-slate-500'}`} />
-                  <div>
-                    <span className="text-[10px] text-slate-400 block">Drone Survey</span>
-                    <span className={`text-[11px] font-semibold ${activeParcel.droneSurveyCompleted ? 'text-sky-400' : 'text-slate-400'}`}>
-                      {activeParcel.droneSurveyCompleted ? 'LiDAR Stamped' : 'Pending'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Financial Compensation Breakdown (RFCTLARR 2013) */}
-              <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-800/50 space-y-2">
-                <div className="flex justify-between items-center pb-1.5 border-b border-emerald-900/60">
-                  <span className="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">
-                    LARR Statutory Valuation
-                  </span>
-                  <span className="text-[10px] text-slate-400">Multiplier: {activeParcel.multiplierFactor}x</span>
-                </div>
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Total Statutory Award:</span>
-                  <span className="font-mono font-bold text-emerald-400 text-sm">
-                    ₹{(activeParcel.totalCompensationRupees / 10000000).toFixed(2)} Cr
-                  </span>
-                </div>
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Disbursed via PFMS DBT:</span>
-                  <span className="font-mono font-semibold text-slate-200">
-                    ₹{(activeParcel.disbursedAmountRupees / 10000000).toFixed(2)} Cr
-                  </span>
-                </div>
-                {activeParcel.dbtUtrNumber && (
-                  <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
-                    <span>PFMS UTR: </span>
-                    <span className="font-mono text-sky-400">{activeParcel.dbtUtrNumber}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Dispute warning if any */}
-              {activeParcel.status === 'In_Dispute' && (
-                <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/60 space-y-1">
-                  <div className="flex items-center gap-1.5 text-rose-400 font-semibold text-xs">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>Active Dispute Reference: {activeParcel.disputeId}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-300">
-                    Section 64 objection or High Court stay order active. Financial escrow secured under CALA registry.
-                  </p>
-                </div>
-              )}
-
-              {/* Status Update / Action Section */}
-              <div className="pt-2 space-y-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Advance Acquisition Stage:
+            <div className="space-y-3.5">
+              {/* Header */}
+              <div className="border-b border-slate-200 pb-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                  Selected Land Parcel
                 </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => onUpdateParcelStatus(activeParcel.id, 'Sec_11_Awarded')}
-                    disabled={activeParcel.status === 'Possession_Taken'}
-                    className="py-1.5 px-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium transition-colors disabled:opacity-50"
-                  >
-                    Pass Sec 11 Award
-                  </button>
-                  <button
-                    onClick={() => onUpdateParcelStatus(activeParcel.id, 'Possession_Taken')}
-                    disabled={activeParcel.status === 'Possession_Taken'}
-                    className="py-1.5 px-2 rounded bg-emerald-800 hover:bg-emerald-700 text-white text-[11px] font-medium transition-colors disabled:opacity-50"
-                  >
-                    Take Possession
-                  </button>
+                <h3 className="text-base font-bold text-[#1B365D]">
+                  Survey / Khasra #{activeParcel.surveyNumber}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Sub-division: {activeParcel.subDivision} • Khata: {activeParcel.khataNumber}
+                </p>
+              </div>
+
+              {/* Basic & Ownership Details */}
+              <div className="space-y-2 text-slate-700">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Village:</span>
+                  <span className="font-semibold">{activeParcel.village}</span>
                 </div>
 
-                <button
-                  onClick={onOpenCalculator}
-                  className="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 text-xs font-medium transition-colors flex items-center justify-center gap-1"
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Area:</span>
+                  <span className="font-bold text-slate-900">{activeParcel.areaAcres} Acres ({activeParcel.areaHectares} Ha)</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Landowner (Khatedar):</span>
+                  <span className="font-semibold text-[#1B365D]">{activeParcel.landOwnerName}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Project:</span>
+                  <span className="font-medium text-slate-900 truncate max-w-[140px]">{activeParcel.projectName}</span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Acquisition Status:</span>
+                  <Badge 
+                    variant={
+                      activeParcel.status === 'Compensation_Paid' ? 'emerald' :
+                      activeParcel.status === 'Possession_Handed_Over' ? 'blue' : 'amber'
+                    }
+                  >
+                    {activeParcel.status.replace(/_/g, ' ')}
+                  </Badge>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Compensation:</span>
+                  <span className="font-bold text-emerald-800">
+                    ₹{(activeParcel.totalCompensationRupees / 100000).toFixed(2)} Lakhs
+                  </span>
+                </div>
+
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Verification Status:</span>
+                  <span className="text-emerald-800 font-semibold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    RoR 7/12 & GPS Verified
+                  </span>
+                </div>
+              </div>
+
+              {/* Status Update Form */}
+              <div className="pt-2 border-t border-slate-200 space-y-2 bg-slate-50 p-2.5 rounded">
+                <span className="text-[11px] font-bold text-slate-700 block">
+                  Update Statutory Status
+                </span>
+                <select
+                  value={statusDraft || activeParcel.status}
+                  onChange={e => setStatusDraft(e.target.value as ParcelStatus)}
+                  className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs text-slate-900 focus:outline-none"
                 >
-                  <span>Re-evaluate under LARR 2013 Calculator</span>
+                  <option value="Survey_Section3A_Notified">Survey Section 3A / 11 Notified</option>
+                  <option value="Objection_Hearing_Section15">Objection Hearing Section 15</option>
+                  <option value="Declaration_Section3D">Declaration Section 3D Published</option>
+                  <option value="Award_Declared_Section3G">Award Declared Section 3G / 23</option>
+                  <option value="Compensation_Paid">Compensation Paid (PFMS)</option>
+                  <option value="Possession_Handed_Over">Possession Handed Over</option>
+                </select>
+                <button
+                  onClick={handleApplyStatusChange}
+                  disabled={!statusDraft || statusDraft === activeParcel.status}
+                  className="w-full py-1.5 bg-[#1B365D] hover:bg-[#122642] disabled:bg-slate-300 text-white font-semibold text-xs rounded transition-colors"
+                >
+                  Save Status Change
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-1.5 pt-2">
+                <button
+                  onClick={() => onInspectParcel?.(activeParcel)}
+                  className="w-full py-1.5 bg-white hover:bg-slate-100 text-blue-900 border border-slate-300 rounded text-xs font-semibold"
+                >
+                  View Structured Land Record
+                </button>
+                <button
+                  onClick={() => onOpenDocModal?.(activeParcel)}
+                  className="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded text-xs font-medium"
+                >
+                  Open Statutory Documents
                 </button>
               </div>
             </div>
           ) : (
-            <div className="p-8 text-center text-slate-500 text-xs">
-              Click any land parcel on the map to inspect its cadastral schedule.
+            <div className="p-8 text-center text-slate-400 text-xs">
+              Select a parcel from the map or filter list to inspect details.
             </div>
           )}
         </div>
