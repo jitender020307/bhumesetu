@@ -1,0 +1,6 @@
+{
+  "name": "BhoomiSetu",
+  "description": "Real-Time National Land Acquisition & Management System for End-to-End Digital Monitoring and Decision Support (SIH26016)",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
